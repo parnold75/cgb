@@ -1,5 +1,6 @@
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
+#include <random>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -19,11 +20,28 @@ using namespace std::chrono;
 using namespace std;
 
 /**
+* @brief Helper. Gibt eine CGB Nachricht aus.
+*
+* @param buffer
+* @param n
+*/
+void print( cgb_byte* buffer, cgb_size n)
+{
+    for(int i=0; i< n; i++)
+    {
+        printf("0x%X ", buffer[i]);
+    }
+}
+
+/**
 * @brief 
 */
 void unit_test()
 {
     const int max_num_of_bytes = 112;
+    random_device rd;
+    mt19937 mt(rd());
+    uniform_real_distribution<double> dist(0.0, 1.0);
 
     cgb_byte src[max_num_of_bytes *2];
     cgb_byte dest[max_num_of_bytes *2];
@@ -33,13 +51,24 @@ void unit_test()
     {
         for(int index_byte = 0; index_byte < num_of_bytes; index_byte++)
         {
-            src[index_byte] = index_byte;
+            src[index_byte] = (cgb_byte) 0xFF * dist(mt);
+        }
+
+        if(cgb::args::debug())
+        {
+            print(src, num_of_bytes);
         }
 
         cgb_size len = 0;
         cgb_encoding(src, src_7Bit_buffer, num_of_bytes, &len);
-        cgb_decoding(src_7Bit_buffer, dest, len, &len);
 
+        if(cgb::args::debug())
+        {
+            print(src_7Bit_buffer, len);
+            cout << endl;
+        }
+
+        cgb_decoding(src_7Bit_buffer, dest, len, &len);
         for(int index_byte = 0; index_byte < num_of_bytes; index_byte++)
         {
             if(src[index_byte] != dest[index_byte])
@@ -68,19 +97,6 @@ void unit_test1()
     printf("len: %d '%s'\n", len, (char*)dest);
 }
 
-/**
-* @brief Helper. Gibt eine CGB Nachricht aus.
-*
-* @param buffer
-* @param n
-*/
-void print( cgb_byte* buffer, cgb_size n)
-{
-    for(int i=0; i< n; i++)
-    {
-        printf("0x%X ", buffer[i]);
-    }
-}
 
 /**
 * @brief 
@@ -124,7 +140,6 @@ void fifo_op()
         // ==========================================
         cgb::msg_queue to([](const cgb_byte * src, cgb_size size)
         {
-            std::cout << "to buffer exe" << std::endl;
             cgb_byte buf[256];
             cgb_size len;
             cgb_encoding(src, buf, size, &len);

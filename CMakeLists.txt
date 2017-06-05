@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.0)
 project (cgb)
 
-add_definitions(-std=c++11)
+add_definitions(-std=c++17)
 add_definitions( -J2 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -DBOOST_LOG_DYN_LINK -DBOOST_COROUTINES_NO_DEPRECATION_WARNING ")

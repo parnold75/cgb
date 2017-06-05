@@ -5,9 +5,10 @@
 #include <functional>
 #include <queue>
 #include <thread>
+#include <string>
 
 #include "cgb.h"
-#include <string>
+#include "cgb_buffer.hpp"
 
 using namespace std;
 
@@ -26,11 +27,12 @@ class msg_queue
     queue<cgb_byte*> _queue;
 
  
-    public:
+    
+public:
     msg_queue(msg_queue_event callback, string name);
     ~msg_queue();
 
-    void enqueue(const cgb_byte* buffer, cgb_size size);
+    void enqueue(unique_cgb_buffer buffer);
 
     private:
     void worker();

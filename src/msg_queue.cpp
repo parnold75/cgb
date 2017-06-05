@@ -1,6 +1,7 @@
 #include "msg_queue.hpp"
 #include <iostream>
 #include <sstream>
+#include "cgb_buffer.hpp"
 
 using namespace std;
 
@@ -29,10 +30,10 @@ void msg_queue::worker()
     cout << "msg_queue thread '" << _name << "' stopped" << endl;
 }
 
-void msg_queue::enqueue( const cgb_byte* buffer, cgb_size size )
+void msg_queue::enqueue( unique_cgb_buffer buffer )
 {
     unique_lock<mutex> lock(_mutex);
-    _f_callback(buffer, size);
+    _f_callback(buffer->buffer, buffer->size);
 }
 
 } // namespace cgb

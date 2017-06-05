@@ -1,6 +1,7 @@
 #include "fifo.hpp"
 #include "file_handle.hpp"
 
+#include <boost/pool/object_pool.hpp>
 #include <chrono>
 #include <string>
 #include <cstring>
@@ -15,6 +16,7 @@
 #include <time.h>
 
 using namespace std;
+using namespace std::chrono;
 
 namespace cgb
 {
@@ -73,8 +75,6 @@ fifo::fifo(int address, std::string name, msg_queue & msg) :
 }
 
 /*
-
-
 */
 fifo::~fifo()
 {
@@ -104,8 +104,8 @@ bool fifo::create()
 */
 void fifo::reader_thread()
 {
-    cgb_byte bytes[110];
-    msg.enqueue(bytes, (cgb_size) 0);
+    // ACHTUNG: Wird der thread beendet, ist der POOL mit sicherheit ungültig.
+    boost::object_pool<cgb_buffer> pool;
 
     // open the fifo.
     std::unique_ptr<file_handle> handle(new file_handle(name.c_str(), O_RDONLY|O_NONBLOCK));
@@ -116,14 +116,22 @@ void fifo::reader_thread()
         return;
     }
 
-    int readed = 0;  
-    while( (readed = read(handle->get_handle(), bytes, 110 ))>=0 && not_exit )
+    // buffer für empfangs-daten bereit stellen.
+    auto buffer = get_buffer();
+
+    while( not_exit )
     {
-        if(readed == 0)
+///34516 Adina
+        buffer->size = read( handle->get_handle(), buffer->buffer, buffer->MAX_SIZE );   
+        
+        if(buffer->size == 0)
         {
+            auto ms = milliseconds(100);
+            std::this_thread::sleep_for(ms);
             continue;
         }
-        msg.enqueue(bytes, (cgb_size) readed);
+        msg.enqueue(std::move(buffer));
+        buffer = get_buffer();
     }
     
     std::cout << "fifo thread stopped. '" << name << "'" << std::endl;

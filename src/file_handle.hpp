@@ -15,7 +15,7 @@ class file_handle
     int handle = -1;
 
     public:
-    file_handle(const char * name, int oflag);
+    file_handle( const char*, int oflag );
     ~file_handle();
     int get_handle(){ return handle; }
 };
