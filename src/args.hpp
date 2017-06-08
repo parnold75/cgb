@@ -35,8 +35,8 @@ class args
     static bool debug();
     static bool fifo();
     static bool unit_test();
-};
+}; // class args
 
-}
+} // namespace cgb
 
 #endif // __ARGS_HPP__

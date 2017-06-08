@@ -25,10 +25,8 @@ class msg_queue
     mutex _mutex;
     thread _thread;
     queue<cgb_byte*> _queue;
-
- 
     
-public:
+    public:
     msg_queue(msg_queue_event callback, string name);
     ~msg_queue();
 

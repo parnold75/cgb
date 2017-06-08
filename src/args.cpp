@@ -120,6 +120,6 @@ bool args::unit_test()
     return vmap.count("unit-test") > 0;
 }
 
-}
+} // namespace cgb
 
 

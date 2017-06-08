@@ -18,7 +18,7 @@ class cgb_buffer
     const static cgb_size MAX_SIZE = 127;
     cgb_size size;
     cgb_byte buffer[MAX_SIZE];
-};
+}; // class cgb_buffer
 
 // "typedef" - für unique_ptr und deleter
 // Objekt wird vom Daten-Pool erstellt und durch den deleter wieder zugeführt.
